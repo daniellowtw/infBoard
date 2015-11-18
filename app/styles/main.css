@@ -1,0 +1,29 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  text-align: center;
+  overflow: hidden;
+}
+
+h2 {
+  font-family: "Merriweather", "Roboto", sans-serif;
+  margin-top: 15px;
+}
+
+.myCanvas {
+  border: 10px solid black;
+  position: absolute;
+  top: 50px;
+  left: 50px;
+
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+.stroke-width{
+  width:70px
+}
