@@ -8,7 +8,7 @@ function TextObject(id, x, y, text) {
     // Trying to use parasitic inheritance by crockford
     var that = new BoardObject();
     that.id = id;
-    that.text = "";
+    that.text = text;
     that.x = x; // world x
     that.y = y; // world y
 
@@ -44,21 +44,19 @@ function TextObject(id, x, y, text) {
             x: that.x,
             y: that.y,
             offsetX: that.offsetX,
-            offsetY: that.offsetY
+            offsetY: that.offsetY,
+            text: that.text
         }
     };
     that.constructor = TextObject;
     return that;
 }
 
-TextObject.deserialize = function (that) {
-    var temp = new TextObject(that.id);
-    temp.id = that.id;
-    temp.x = that.x;
-    temp.y = that.y;
-    temp.offsetX = that.offsetX;
-    temp.offsetY = that.offsetY;
+TextObject.newFromData = function (data) {
+    var temp = new TextObject(data.id, data.x, data.y, data.text);
+    jQuery.extend(temp, data);
     return temp;
 };
+
 
 module.exports = TextObject;

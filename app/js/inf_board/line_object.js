@@ -80,18 +80,6 @@ function LineObject(id, style, width) {
         }
     };
 
-    that.socketBrokerCallbackForContext = function(ctx) {
-        return function(data) {
-            ctx.strokeStyle = data.style;
-            ctx.lineWidth = data.width;
-            ctx.beginPath();
-            ctx.moveTo(data.sx, data.sy);
-            ctx.lineTo(data.tx, data.ty);
-            ctx.stroke();
-            getLatestStyle();
-        }
-    };
-
     that.constructor = LineObject;
     return that;
 }
@@ -103,6 +91,8 @@ LineObject.newFromData = function(that) {
     temp.storeX = that.storeX;
     temp.offsetX = that.offsetX;
     temp.offsetY = that.offsetY;
+    temp.strokeStyle = that.strokeStyle;
+    temp.lineWidth = that.lineWidth;
     return temp;
 };
 

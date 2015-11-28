@@ -2,10 +2,10 @@ var config = require('../config')
 
 function Helper(config) {
     // Returns a jquery canvas object
-    this.createCanvas = function createCanvas(z) {
+    this.createCanvas = function createCanvas(z, name) {
         if (z === undefined) z = 0;
         return $('<canvas class="myCanvas" width="' + config.canvasWidth +
-            '" height="' + config.canvasHeight + '">' +
+            '" height="' + config.canvasHeight + '" id="' + name + '">' +
             'Your browser does not support canvas :(' +
             '</canvas>').css("z-index", z);
     };
@@ -18,7 +18,6 @@ function Helper(config) {
         ctx.moveTo(startX, startY);
         arrX.forEach(function (_, i) {
             ctx.lineTo(arrX[i], arrY[i]);
-            console.log(arrX[i], arrY[i]);
             ctx.stroke();
             startX = arrX[i];
             startY = arrY[i];

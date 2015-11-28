@@ -93,16 +93,16 @@ infBoard.provider("CanvasClient", function () {
 infBoard.config(function (CanvasClientProvider) {
     $(document).ready(function () {
         $("#infBoard").each(function () {
-            var canvasEle = helper.createCanvas(9);
-            var tempCanvasEle = helper.createCanvas(8);
-            var readOnlyCanvasEle = helper.createCanvas(7);
+            var canvasEle = helper.createCanvas(9, 'localCanvas');
+            var tempCanvasEle = helper.createCanvas(8, 'tempCanvas');
+            var readOnlyCanvasEle = helper.createCanvas(7, 'readOnlyCanvas');
             $(this).append(canvasEle).append(tempCanvasEle).append(readOnlyCanvasEle);
             CanvasClientProvider.client = new client(canvasEle[0], tempCanvasEle[0], readOnlyCanvasEle[0]);
             CanvasClientProvider.client.init();
 
             // Add hock for image readerclipboard.js
             $("html").pasteImageReader(function (results) {
-                CanvasClientProvider.client.addImageObject(results);
+                CanvasClientProvider.client.addImageObject(results.dataURL);
             });
         });
     });

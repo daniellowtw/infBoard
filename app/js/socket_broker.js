@@ -1,11 +1,12 @@
 var LineObject = require('./inf_board/line_object');
 
 /*
-Wrapper for socket stuff. Handles client id, etc
+ Wrapper for socket stuff. Handles client id, etc
  */
 function SocketBroker(socket, client) {
     var that = this,
-        noop = function noop() {};
+        noop = function noop() {
+        };
 
     this.id = null;
     // These will be set by client where necessary
@@ -28,7 +29,7 @@ function SocketBroker(socket, client) {
         socket.on(SocketBroker.DRAW_IMAGE_FROM_SERVER, that.drawImageCallback);
         socket.on(SocketBroker.LINE_OBJECT_FROM_SERVER, that.saveLineObjectFromServerCallback);
         socket.on(SocketBroker.CLIENT_PAN, that.clientPanCallback);
-        socket.on(SocketBroker.CLIENT_TRANSLATE_SELECTED, that.clientTranslateSelectedCallback);
+        socket.on(SocketBroker.TRANSLATE_SELECTED_SERVER, that.clientTranslateSelectedCallback);
         socket.on(SocketBroker.MSG_FROM_SERVER, function (data) {
             console.log("MESSAGE FROM SERVER", data);
         });
@@ -37,11 +38,11 @@ function SocketBroker(socket, client) {
         socket.on(SocketBroker.MSG_FROM_CLIENT, console.log);
 
         // Emitting to server, call these when you have created a local object and want others to know
-        this.clientDrawTextObject = function clientDrawText(textObj) {
-            socket.json.emit(SocketBroker.DRAW_TEXT_FROM_CLIENT, textObj.serialize());
+        this.clientDrawTextObject = function clientDrawText(data) {
+            socket.json.emit(SocketBroker.DRAW_TEXT_FROM_CLIENT, data);
         };
-        this.clientDrawImageObject = function clientDrawImage(imgObj) {
-            socket.json.emit(SocketBroker.DRAW_IMAGE_FROM_CLIENT, imgObj.serialize());
+        this.clientDrawImageObject = function clientDrawImage(data) {
+            socket.json.emit(SocketBroker.DRAW_IMAGE_FROM_CLIENT, data);
         };
         //this.clientDrawLine = function clientDrawLine(data) {
         //    socket.json.emit(SocketBroker.DRAW_LINE_FROM_CLIENT, data);
@@ -53,7 +54,8 @@ function SocketBroker(socket, client) {
             socket.json.emit(SocketBroker.CLIENT_PAN, [x, y]);
         };
         this.clientTranslateSelected = function (data) {
-            socket.json.emit(SocketBroker.CLIENT_TRANSLATE_SELECTED, data);
+            console.log("client trying to send this", data)
+            socket.json.emit(SocketBroker.TRANSLATE_SELECTED_CLIENT, data);
         };
         console.log("broker initialised")
     }
@@ -68,7 +70,8 @@ SocketBroker.LINE_OBJECT_FROM_CLIENT = "LINE_OBJECT_FROM_CLIENT";
 SocketBroker.DRAW_IMAGE_FROM_SERVER = "DRAW_IMAGE_FROM_SERVER";
 SocketBroker.DRAW_IMAGE_FROM_CLIENT = "DRAW_IMAGE_FROM_CLIENT";
 SocketBroker.CLIENT_PAN = "CLIENT_PAN";
-SocketBroker.CLIENT_TRANSLATE_SELECTED = "CLIENT_TRANSLATE_SELECTED";
+SocketBroker.TRANSLATE_SELECTED_CLIENT = "TRANSLATE_SELECTED_CLIENT";
+SocketBroker.TRANSLATE_SELECTED_SERVER = "TRANSLATE_SELECTED_SERVER";
 SocketBroker.MSG_FROM_SERVER = "MSG_FROM_SERVER";
 SocketBroker.MSG_FROM_CLIENT = "MSG_FROM_CLIENT";
 

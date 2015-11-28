@@ -3,29 +3,36 @@ var BoardObject = require('./board_object');
 /**
  * A basic Image object
  */
-function ImageObject(id) {
+function ImageObject(id, src, x, y) {
     var that = new BoardObject(id);
-    that.xPos = 0;
-    that.yPos = 0;
-    that.imageObj = new Image();
-
-    that.addData = function addData(results, x, y) {
-        that.imageObj.src = results.dataURL;
-        that.xPos = x;
-        that.yPos = y;
-    };
+    that.xPos = x;
+    that.yPos = y;
+    that.image = new Image();
+    that.image.src = src;
+    that.loaded = false;
 
     that.render = function render(ctx) {
-        ctx.translate(that.offsetX, that.offsetY);
-        if (that.selected) {
-            that.drawBorder(ctx);
+        // Render only if image is loaded
+        var draw = function () {
+            ctx.translate(that.offsetX, that.offsetY);
+            if (that.selected) {
+                that.drawBorder(ctx);
+            }
+            ctx.drawImage(that.image, that.xPos, that.yPos);
+            ctx.translate(-that.offsetX, -that.offsetY);
+        };
+        if (that.loaded) {
+            draw();
+        } else {
+            that.image.onload = function() {
+                that.loaded = true;
+                draw();
+            }
         }
-        ctx.drawImage(that.imageObj, that.xPos, that.yPos);
-        ctx.translate(-this.offsetX, -this.offsetY);
     };
 
     that.drawBorder = function (ctx) {
-        ctx.fillRect(that.xPos - 1, that.yPos - 1, that.imageObj.width + 2, that.imageObj.height + 2);
+        ctx.fillRect(that.xPos - 1, that.yPos - 1, that.image.width + 2, that.image.height + 2);
     };
 
     that.finalize = function finalize() {
@@ -39,16 +46,15 @@ function ImageObject(id) {
             yPos: that.yPos,
             offsetX: that.offsetX,
             offsetY: that.offsetY,
-            image: that.imageObj.src
+            imageSrc: that.image.src
         }
     };
     that.constructor = ImageObject;
     return that;
 }
 
-ImageObject.newFromData = function(data) {
-    var obj = new ImageObject(data.id);
-    obj.imageObj.src = data.image;
+ImageObject.newFromData = function (data) {
+    var obj = new ImageObject(data.id, data.imageSrc);
     obj.xPos = data.xPos;
     obj.yPos = data.yPos;
     // TODO: Set offset

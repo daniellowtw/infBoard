@@ -1,3 +1,5 @@
+'use strict';
+
 var config = require('../config.js');
 var LineObject = require("./inf_board/line_object");
 var TextObject = require("./inf_board/text_object");
@@ -35,6 +37,7 @@ function Client(canvas, tempCanvas, readOnlyCanvas) {
     this.readOnlyCanvas = readOnlyCanvas;
     this.tempCtx.font = "20px serif";
     this.ctx.font = "20px serif";
+    this.readOnlyCtx.font = "20px serif";
     this.scope = null; // Register the scope of the controller so we can control the view.
     this.socket = io();
     this.selectedObjectsID = [];
@@ -44,7 +47,7 @@ function Client(canvas, tempCanvas, readOnlyCanvas) {
     };
 
     this.removeSelected = function (id) {
-        this.selectedObjectsID.splice(selectedObjects.indexOf(id), 1);
+        this.selectedObjectsID.splice(this.selectedObjectsID.indexOf(id), 1);
     };
 
     this.init = function init(options) {
@@ -52,23 +55,43 @@ function Client(canvas, tempCanvas, readOnlyCanvas) {
             that.objectStore = options.objectStore;
         }
         that.sBroker = new SocketBroker(that.socket, that);
-        that.sBroker.clientTranslateSelectedCallback = function (data) {
-            for (var i = 0; i < data.selected.length; i ++) {
-                that.readOnlyObjectStore[data.selected[i]].selected= true;
-            }
-            that.translateSelected(that.readOnlyObjectStore, data.x, data.y)
-        };
         that.sBroker.saveLineObjectFromServerCallback = function (data) {
             var obj = LineObject.newFromData(data);
             that.readOnlyObjectStore[obj.id] = obj;
             that.scope.forceUpdate();
             that.defaultViewForContext(that.readOnlyCtx, that.readOnlyObjectStore, -that.tx, -that.ty)
         };
-        that.sBroker.drawImageCallback = function (data) {
-            var obj = ImageObject.newFromData(data);
-            that.readOnlyObjectStore[obj.id] = obj;
+        that.myTextCallback = function (data, context, objectStore) {
+            var obj = TextObject.newFromData(data);
+            objectStore[obj.id] = obj;
             that.scope.forceUpdate();
-            that.defaultViewForContext(that.readOnlyCtx, that.readOnlyObjectStore, -that.tx, -that.ty)
+            that.defaultViewForContext(context, objectStore, -that.tx, -that.ty)
+        };
+        that.sBroker.drawTextCallback = function (data) {
+            that.myTextCallback(data, that.readOnlyCtx, that.readOnlyObjectStore)
+        };
+        that.sBroker.drawImageCallback = function(data) {
+            that.myImageCallback(data, that.readOnlyCtx, that.readOnlyObjectStore)
+        };
+        that.myImageCallback =  function (data, context, objectStore) {
+            var obj = ImageObject.newFromData(data);
+            objectStore[obj.id] = obj;
+            that.scope.forceUpdate();
+            that.defaultViewForContext(context, objectStore, -that.tx, -that.ty)
+        };
+        that.myTranslateSelectedCallback = function (data, context, objectStore) {
+            for (var i = 0; i < data.selected.length; i++) {
+                objectStore[data.selected[i]].selected = true;
+            }
+            that.translateSelected(objectStore, data.x, data.y);
+            that.scope.forceUpdate();
+            that.defaultViewForContext(context, objectStore, -that.tx, -that.ty)
+        };
+        that.sBroker.clientTranslateSelectedCallback = function (data) {
+            that.myTranslateSelectedCallback(data, that.readOnlyCtx, that.readOnlyObjectStore)
+            for (var i = 0; i < data.selected.length; i++) {
+                that.readOnlyObjectStore[data.selected[i]].selected = false;
+            }
         };
         that.sBroker.init();
 
@@ -152,12 +175,14 @@ function Client(canvas, tempCanvas, readOnlyCanvas) {
                         that.sBroker.clientPan(tx, ty);
                         break;
                     case Client.modes.MOVE:
-                        that.translateSelected(that.objectStore, mx - omx, my - omy);
-                        that.sBroker.clientTranslateSelected({
+                        //that.translateSelected(that.objectStore, mx - omx, my - omy);
+                        var objectToSend = {
                             selected: that.selectedObjectsID,
                             x: mx - omx,
                             y: my - omy
-                        });
+                        };
+                        that.sBroker.clientTranslateSelected(objectToSend);
+                        that.myTranslateSelectedCallback(objectToSend, that.ctx, that.objectStore);
                         break;
                 }
             }
@@ -177,17 +202,16 @@ function Client(canvas, tempCanvas, readOnlyCanvas) {
                     that.defaultView(-that.tx, -that.ty);
                     break;
                 case Client.modes.MOVE:
-                    // Noop
                     break;
                 case Client.modes.TEXT:
-                    console.log("Current text", that.currObj.text)
-                    if(that.currObj.text != "") {
+                    if (that.currObj.text != "") {
                         that.currObj.finalize();
-                        that.objectStore[that.currObj.id] = that.currObj;
-                        that.currObj.render(that.ctx);
+                        var objectToSend = that.currObj.serialize();
+                        that.scope.changeMode(Client.modes.NONE);
+                        helper.cleanContext(that.tempCtx);
+                        that.sBroker.clientDrawTextObject(objectToSend);
+                        that.myTextCallback(objectToSend, that.ctx, that.objectStore);
                     }
-                    that.scope.changeMode(Client.modes.NONE);
-                    helper.cleanContext(that.tempCtx);
                     break;
             }
         })
@@ -196,7 +220,6 @@ function Client(canvas, tempCanvas, readOnlyCanvas) {
             that.isMouseInCanvas = false;
         });
 }
-
 
 // Constants
 Client.modes = {
@@ -207,22 +230,16 @@ Client.modes = {
     MOVE: 4,
     TEXT: 5
 };
-
-Client.prototype.getIdForObject = function() {
-    var currentID = this.objectId;
-    this.objectId++;
-    return currentID;
+Client.prototype.getIdForObject = function () {
+    return ++this.objectId;
 };
 
 Client.prototype.addImageObject = function addImageObject(results) {
     if (!this.isMouseInCanvas) return;
-    this.currObj = new ImageObject(this.getIdForObject());
-    this.currObj.addData(results, this.mx - this.tx, this.my - this.ty);
-    this.currObj.finalize();
-    this.objectStore[this.currObj.id] = this.currObj;
-    this.currObj.render(this.ctx);
-    this.sBroker.clientDrawImageObject(this.currObj);
-    this.scope.forceUpdate();
+    this.currObj = new ImageObject(this.getIdForObject(), results, this.mx - this.tx, this.my - this.ty);
+    var objToSend = this.currObj.serialize();
+    this.sBroker.clientDrawImageObject(objToSend);
+    this.myImageCallback(objToSend, this.ctx, this.objectStore);
 };
 
 Client.prototype.update = function update() {
@@ -237,14 +254,15 @@ Client.prototype.defaultViewForContext = function (ctx, objectStore, x, y) {
     helper.cleanContext(ctx); // This will clear rect of the screen in the default coordinate system
     ctx.translate(-parseInt(x), -parseInt(y)); // when we want to render something at x,y, it is rendered at 0,0
     Object.keys(objectStore).forEach(function (key) {
+        console.log("rendering something", key)
         this[key].render(ctx);
     }, objectStore);
 };
 
 // defaultView changes the TL corner to be equivalent to world coordinate (x,y)
 Client.prototype.defaultView = function (x, y) {
-    this.defaultViewForContext(this.ctx, this.objectStore, x, y)
-    this.defaultViewForContext(this.tempCtx, {}, x, y)
+    this.defaultViewForContext(this.ctx, this.objectStore, x, y);
+    this.defaultViewForContext(this.tempCtx, {}, x, y);
     this.defaultViewForContext(this.readOnlyCtx, this.readOnlyObjectStore, x, y)
 };
 

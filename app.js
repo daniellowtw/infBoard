@@ -28,7 +28,7 @@ io.on("connection", function (socket) {
   numUsers++;
   socket.broadcast.to(id).emit(SocketBroker.MSG_FROM_SERVER, "Someone joined.")
   marshallBroadcast(SocketBroker.DRAW_TEXT_FROM_CLIENT, SocketBroker.DRAW_TEXT_FROM_SERVER);
-  //marshallBroadcast(SocketBroker.DRAW_LINE_FROM_CLIENT, SocketBroker.DRAW_LINE_FROM_SERVER);
+  marshallBroadcast(SocketBroker.TRANSLATE_SELECTED_CLIENT, SocketBroker.TRANSLATE_SELECTED_SERVER);
   marshallBroadcast(SocketBroker.LINE_OBJECT_FROM_CLIENT, SocketBroker.LINE_OBJECT_FROM_SERVER);
   marshallBroadcast(SocketBroker.DRAW_IMAGE_FROM_CLIENT, SocketBroker.DRAW_IMAGE_FROM_SERVER);
   marshallBroadcast(SocketBroker.CLIENT_PAN, SocketBroker.CLIENT_PAN);
