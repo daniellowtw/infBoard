@@ -12,10 +12,10 @@ A collaborative infinite whiteboard.
 
 ## Installation
 
-```
-npm install
-bower install
-npm start
+```sh
+npm install # Gets dependencies
+webpack # Builds the front-end
+npm start # Start the backend
 ```
 
 ## Contributing
@@ -26,7 +26,8 @@ Directory structure:
  - `app.js` is the backend code.
 
 ### Developing the front end
- - Create a dev server using `dev.sh` to develop the front end.
+
+ - Create a dev server using `npm run dev` to develop the front end.
  - `webpack` will update the contents in public.
 
 ### TODO

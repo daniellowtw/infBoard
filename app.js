@@ -4,7 +4,7 @@ var http = require("http").Server(app);
 var io = require("socket.io")(http);
 var SocketBroker = require("./app/js/socket_broker");
 
-var port = 8080;
+var port = process.env.PORT || 8080;
 
 //Create a static file server
 app.use(express.static(__dirname + '/public'));

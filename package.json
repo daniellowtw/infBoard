@@ -8,7 +8,8 @@
     "express": "4.10.2"
   },
   "scripts": {
-    "start": "node app.js"
+    "start": "node app.js",
+    "dev": "webpack-dev-server --devtool eval --progress --colors --content-base public"
   },
   "devDependencies": {
     "angular": "^1.4.7",
@@ -25,6 +26,7 @@
     "jquery": "^2.1.4",
     "less": "^2.5.3",
     "less-loader": "^2.2.1",
+    "raw-loader": "^0.5.1",
     "socket.io": "1.2.0",
     "socket.io-client": "1.2.0",
     "style-loader": "^0.13.0",

@@ -7,3 +7,6 @@ require('./js/vendor.js')();
 require("./js/angular_stuff.js");
 require("./js/inf_board.js");
 require("./styles/main.css");
+
+//TODO(REMOVE FOR PROD)
+require("./index.html");
