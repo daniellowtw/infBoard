@@ -5,6 +5,15 @@ var client = require("./client.js");
 infBoard.controller('MainCtrl', ['$scope', "CanvasClient", function ($scope, CanvasClient) {
     CanvasClient.scope = $scope;
 
+    CanvasClient.socket.on("magic-received", function(data){
+        console.log("magic-recieved", data)
+    })
+
+    $scope.magic = function() {
+        CanvasClient.socket.emit("magic", "blah")
+        console.log(CanvasClient.socket)
+    }
+
     $scope.forceUpdate = function() {
         $scope.$apply(function(){
             $scope.objectStack = CanvasClient.objectStore;

@@ -6,8 +6,11 @@ var LineObject = require('./inf_board/line_object');
 function SocketBroker(socket, client) {
     var that = this,
         noop = function noop() {
+        },
+        logger = function (data) {
+            console.log("Socketbroker:", data)
         };
-
+    this.nonce = 0;
     this.id = null;
     // These will be set by client where necessary
     this.drawTextCallback = noop;
@@ -21,9 +24,18 @@ function SocketBroker(socket, client) {
         client.defaultView(-arr[0], -arr[1]);
     };
     this.clientTranslateSelectedCallback = noop;
+    this.callBackQueue = {}; // {id:function(res:[nil/obj])}
 
     this.init = function () {
         // Receiving from server
+        socket.on("SYNACK", function (data) {
+            // data is of the form {nonce:int, res:[nil/object]}
+            that.callBackQueue[data.nonce](data.res)
+        });
+        socket.on("INIT", function(data) {
+            that.nonce = data.nonce;
+            that.callBackQueue[that.nonce] = logger
+        });
         socket.on(SocketBroker.DRAW_TEXT_FROM_SERVER, that.drawTextCallback);
         //socket.on(SocketBroker.DRAW_LINE_FROM_SERVER, that.drawLineCallback);
         socket.on(SocketBroker.DRAW_IMAGE_FROM_SERVER, that.drawImageCallback);
@@ -34,7 +46,6 @@ function SocketBroker(socket, client) {
             console.log("MESSAGE FROM SERVER", data);
         });
 
-        socket.json.emit(SocketBroker.MSG_FROM_CLIENT, "HI! I AM CONNECTED" + socket.id);
         socket.on(SocketBroker.MSG_FROM_CLIENT, console.log);
 
         // Emitting to server, call these when you have created a local object and want others to know
@@ -42,12 +53,13 @@ function SocketBroker(socket, client) {
             socket.json.emit(SocketBroker.DRAW_TEXT_FROM_CLIENT, data);
         };
         this.clientDrawImageObject = function clientDrawImage(data) {
+            data.nonce = that.nonce++;
+            that.callBackQueue[data.nonce]= function(res) {console.log("WOOWOWO", res)}
             socket.json.emit(SocketBroker.DRAW_IMAGE_FROM_CLIENT, data);
         };
-        //this.clientDrawLine = function clientDrawLine(data) {
-        //    socket.json.emit(SocketBroker.DRAW_LINE_FROM_CLIENT, data);
-        //};
         this.clientDrawLineObject = function clientDrawLineObject(lineObj) {
+            lineObj.nonce = that.nonce++;
+            that.callBackQueue[lineObj.nonce]= function(res) {console.log("WOOWOWO", res)}
             socket.json.emit(SocketBroker.LINE_OBJECT_FROM_CLIENT, lineObj);
         };
         this.clientPan = function clientPan(x, y) {

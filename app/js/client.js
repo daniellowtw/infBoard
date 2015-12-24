@@ -4,7 +4,7 @@ var config = require('../config.js');
 var LineObject = require("./inf_board/line_object");
 var TextObject = require("./inf_board/text_object");
 var ImageObject = require("./inf_board/image_object");
-var io = require("socket.io-client");
+var socketClient = require("socket.io-client");
 var helper = require('./helper');
 var SocketBroker = require("./socket_broker");
 
@@ -39,7 +39,7 @@ function Client(canvas, tempCanvas, readOnlyCanvas) {
     this.ctx.font = "20px serif";
     this.readOnlyCtx.font = "20px serif";
     this.scope = null; // Register the scope of the controller so we can control the view.
-    this.socket = io();
+    this.socket = socketClient();
     this.selectedObjectsID = [];
 
     this.addSelected = function (id) {
