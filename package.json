@@ -27,6 +27,7 @@
     "less": "^2.5.3",
     "less-loader": "^2.2.1",
     "raw-loader": "^0.5.1",
+    "redis-connection": "^4.0.1",
     "socket.io": "1.2.0",
     "socket.io-client": "1.2.0",
     "style-loader": "^0.13.0",
