@@ -193,6 +193,7 @@ function Client(canvas, tempCanvas, readOnlyCanvas) {
                 case Client.modes.DRAW:
                     that.currObj.finalize();
                     // TODO: RENAME
+                    // TODO: Broken because our id might not be the same as the server.
                     that.sBroker.clientDrawLineObject(that.currObj);
                     that.objectStore[that.currObj.id] = that.currObj;
                     break;

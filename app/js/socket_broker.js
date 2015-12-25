@@ -59,7 +59,12 @@ function SocketBroker(socket, client) {
         };
         this.clientDrawLineObject = function clientDrawLineObject(lineObj) {
             lineObj.nonce = that.nonce++;
-            that.callBackQueue[lineObj.nonce]= function(res) {console.log("WOOWOWO", res)}
+
+            // Update our id with that from the server.
+            that.callBackQueue[lineObj.nonce]= function(res) {
+                lineObj.id = res;
+                console.log("Replacing id", lineObj)
+            };
             socket.json.emit(SocketBroker.LINE_OBJECT_FROM_CLIENT, lineObj);
         };
         this.clientPan = function clientPan(x, y) {
