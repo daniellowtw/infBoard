@@ -212,8 +212,12 @@ function Client(canvas, tempCanvas, readOnlyCanvas) {
                         var objectToSend = that.currObj.serialize();
                         that.scope.changeMode(Client.modes.NONE);
                         helper.cleanContext(that.tempCtx);
-                        that.sBroker.clientDrawTextObject(objectToSend);
-                        that.myTextCallback(objectToSend, that.ctx, that.objectStore);
+                        that.sBroker.clientDrawTextObject(objectToSend, function (res) {
+                            objectToSend.id = res;
+                            that.objectStore[objectToSend.id] = objectToSend;
+                            //that.scope.forceUpdate();
+                            that.myTextCallback(objectToSend, that.ctx, that.objectStore);
+                        });
                     }
                     break;
             }

@@ -49,7 +49,9 @@ function SocketBroker(socket, client) {
         socket.on(SocketBroker.MSG_FROM_CLIENT, console.log);
 
         // Emitting to server, call these when you have created a local object and want others to know
-        this.clientDrawTextObject = function clientDrawText(data) {
+        this.clientDrawTextObject = function clientDrawText(data, callback) {
+            data.nonce = that.nonce++;
+            that.callBackQueue[data.nonce] = callback;
             socket.json.emit(SocketBroker.DRAW_TEXT_FROM_CLIENT, data);
         };
         this.clientDrawImageObject = function clientDrawImage(data) {
