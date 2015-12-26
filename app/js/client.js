@@ -70,10 +70,10 @@ function Client(canvas, tempCanvas, readOnlyCanvas) {
         that.sBroker.drawTextCallback = function (data) {
             that.myTextCallback(data, that.readOnlyCtx, that.readOnlyObjectStore)
         };
-        that.sBroker.drawImageCallback = function(data) {
+        that.sBroker.drawImageCallback = function (data) {
             that.myImageCallback(data, that.readOnlyCtx, that.readOnlyObjectStore)
         };
-        that.myImageCallback =  function (data, context, objectStore) {
+        that.myImageCallback = function (data, context, objectStore) {
             var obj = ImageObject.newFromData(data);
             objectStore[obj.id] = obj;
             that.scope.forceUpdate();
@@ -193,9 +193,11 @@ function Client(canvas, tempCanvas, readOnlyCanvas) {
                 case Client.modes.DRAW:
                     that.currObj.finalize();
                     // TODO: RENAME
-                    // TODO: Broken because our id might not be the same as the server.
-                    that.sBroker.clientDrawLineObject(that.currObj);
-                    that.objectStore[that.currObj.id] = that.currObj;
+                    that.sBroker.clientDrawLineObject(that.currObj, function (res) {
+                        that.currObj.id = res;
+                        that.objectStore[that.currObj.id] = that.currObj;
+                        that.scope.forceUpdate();
+                    });
                     break;
                 case Client.modes.PAN:
                     that.tx += that.mx - that.msx;
@@ -255,7 +257,6 @@ Client.prototype.defaultViewForContext = function (ctx, objectStore, x, y) {
     helper.cleanContext(ctx); // This will clear rect of the screen in the default coordinate system
     ctx.translate(-parseInt(x), -parseInt(y)); // when we want to render something at x,y, it is rendered at 0,0
     Object.keys(objectStore).forEach(function (key) {
-        console.log("rendering something", key)
         this[key].render(ctx);
     }, objectStore);
 };

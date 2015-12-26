@@ -10,7 +10,7 @@ function SocketBroker(socket, client) {
         logger = function (data) {
             console.log("Socketbroker:", data)
         };
-    this.nonce = 0;
+    this.nonce = 0; // messageId between server and client
     this.id = null;
     // These will be set by client where necessary
     this.drawTextCallback = noop;
@@ -57,14 +57,12 @@ function SocketBroker(socket, client) {
             that.callBackQueue[data.nonce]= function(res) {console.log("WOOWOWO", res)}
             socket.json.emit(SocketBroker.DRAW_IMAGE_FROM_CLIENT, data);
         };
-        this.clientDrawLineObject = function clientDrawLineObject(lineObj) {
-            lineObj.nonce = that.nonce++;
 
+        // Tries to draw the line object. Calls callback if server says ok.
+        this.clientDrawLineObject = function clientDrawLineObject(lineObj, callback) {
+            lineObj.nonce = that.nonce++;
             // Update our id with that from the server.
-            that.callBackQueue[lineObj.nonce]= function(res) {
-                lineObj.id = res;
-                console.log("Replacing id", lineObj)
-            };
+            that.callBackQueue[lineObj.nonce] = callback;
             socket.json.emit(SocketBroker.LINE_OBJECT_FROM_CLIENT, lineObj);
         };
         this.clientPan = function clientPan(x, y) {

@@ -31,7 +31,6 @@ io.on("connection", function (socket) {
                 }
             })
         } else {
-            console.log("Nonce is now", res[0])
             socket.emit("INIT", {nonce:res[0]})
         }
     });
