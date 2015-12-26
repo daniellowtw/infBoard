@@ -35,8 +35,13 @@ io.on("connection", function (socket) {
         }
     });
 
-
+    // get all objects for the current room and process them
     dbClient.load(id, function (data, err) {
+        if (err) {
+            console.log("Got error while retrieving objects from db for %s", id)
+        } else {
+            sBroker.sendObjectToClient(data)
+        }
     })
 
     numUsers++;
