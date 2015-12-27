@@ -88,7 +88,7 @@ function Client(canvas, tempCanvas, readOnlyCanvas) {
             that.defaultViewForContext(context, objectStore, -that.tx, -that.ty)
         };
         that.sBroker.clientTranslateSelectedCallback = function (data) {
-            that.myTranslateSelectedCallback(data, that.ctx, that.objectStore)
+            that.myTranslateSelectedCallback(data, that.ctx, that.objectStore);
             for (var i = 0; i < data.selected.length; i++) {
                 that.objectStore[data.selected[i]].selected = false;
             }
@@ -175,7 +175,6 @@ function Client(canvas, tempCanvas, readOnlyCanvas) {
                         that.sBroker.clientPan(tx, ty);
                         break;
                     case Client.modes.MOVE:
-                        //that.translateSelected(that.objectStore, mx - omx, my - omy);
                         var objectToSend = {
                             selected: that.selectedObjectsID,
                             x: mx - omx,
@@ -316,7 +315,7 @@ Client.prototype.addTextObject = function (t) {
     this.currObj.text = t;
     // TODO: this is ugly and heavyweight
     // Render the text as we type.
-    this.defaultViewForContext(this.tempCtx, {}, -this.tx, -this.ty)
+    this.defaultViewForContext(this.tempCtx, {}, -this.tx, -this.ty);
     this.currObj.render(this.tempCtx);
 };
 

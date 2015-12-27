@@ -5,21 +5,21 @@ var client = require("./client.js");
 infBoard.controller('MainCtrl', ['$scope', "CanvasClient", function ($scope, CanvasClient) {
     CanvasClient.scope = $scope;
 
-    CanvasClient.socket.on("magic-received", function(data){
+    CanvasClient.socket.on("magic-received", function (data) {
         console.log("magic-recieved", data)
-    })
+    });
 
-    $scope.magic = function() {
-        CanvasClient.socket.emit("magic", "blah")
-        console.log(CanvasClient.socket)
-    }
+    $scope.magic = function () {
+        CanvasClient.socket.emit("magic", "blah");
+        console.log(CanvasClient.objectStore);
+    };
 
-    $scope.forceUpdate = function() {
-        $scope.$apply(function(){
+    $scope.forceUpdate = function () {
+        $scope.$apply(function () {
             $scope.objectStack = CanvasClient.objectStore;
             $scope.readOnlyStack = CanvasClient.readOnlyObjectStore;
         })
-    }
+    };
 
     $scope.objectStack = CanvasClient.objectStore;
     $scope.readOnlyStack = CanvasClient.readOnlyObjectStore;
@@ -29,11 +29,11 @@ infBoard.controller('MainCtrl', ['$scope', "CanvasClient", function ($scope, Can
             $scope.$apply($scope.objectStack = CanvasClient.objectStore)
         });
     $scope.removeObj = function removeObj(obj) {
-        delete $scope.objectStack[obj.id]
+        delete $scope.objectStack[obj.id];
         CanvasClient.update()
     };
     $scope.toggleSelectObj = function toggleSelectObj(obj) {
-        $scope.changeMode(client.modes.MOVE)
+        $scope.changeMode(client.modes.MOVE);
         obj.toggleSelected();
         if (obj.selected) {
             CanvasClient.addSelected(obj.id);
@@ -67,9 +67,10 @@ infBoard.controller('MainCtrl', ['$scope', "CanvasClient", function ($scope, Can
                 break;
             case client.modes.TEXT:
                 CanvasClient.unselectAll();
-                $('#MyHiddenText').val("");
-                CanvasClient.addTextObject($('#MyHiddenText').val()); // creates a new text object
-                $('#MyHiddenText').focus().keyup(function () {
+                var ele = $('#MyHiddenText');
+                ele.val("");
+                CanvasClient.addTextObject(ele.val()); // creates a new text object
+                ele.focus().keyup(function () {
                     CanvasClient.addTextObject($(this).val()); // updates the text object
                 });
                 break;
