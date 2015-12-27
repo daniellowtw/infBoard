@@ -205,6 +205,12 @@ function Client(canvas, tempCanvas, readOnlyCanvas) {
                     that.defaultView(-that.tx, -that.ty);
                     break;
                 case Client.modes.MOVE:
+                    var data = [];
+                    for (var i = 0; i < that.selectedObjectsID.length; i++) {
+                        var tempObj = that.selectedObjectsID[i];
+                        data.push({id:tempObj, offsetX: that.objectStore[tempObj].offsetX, offsetY: that.objectStore[tempObj].offsetY})
+                    }
+                    that.sBroker.clientSaveMovedObject(data);
                     break;
                 case Client.modes.TEXT:
                     if (that.currObj.text != "") {

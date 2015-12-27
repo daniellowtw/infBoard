@@ -71,6 +71,9 @@ function SocketBroker(socket, client) {
         this.clientTranslateSelected = function (data) {
             socket.json.emit(SocketBroker.TRANSLATE_SELECTED_CLIENT, data);
         };
+        this.clientSaveMovedObject = function (data) {
+            socket.json.emit(SocketBroker.SAVE_MOVED_OBJECT, data)
+        }
         console.log("broker initialised")
     }
 }
@@ -86,5 +89,6 @@ SocketBroker.TRANSLATE_SELECTED_CLIENT = "TRANSLATE_SELECTED_CLIENT";
 SocketBroker.TRANSLATE_SELECTED_SERVER = "TRANSLATE_SELECTED_SERVER";
 SocketBroker.MSG_FROM_SERVER = "MSG_FROM_SERVER";
 SocketBroker.MSG_FROM_CLIENT = "MSG_FROM_CLIENT";
+SocketBroker.SAVE_MOVED_OBJECT = "SAVE_MOVED_OBJECT";
 
 module.exports = SocketBroker;
