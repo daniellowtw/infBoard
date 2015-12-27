@@ -14,7 +14,6 @@ function SocketBroker(socket, client) {
     this.id = null;
     // These will be set by client where necessary
     this.drawTextCallback = noop;
-    //this.drawLineCallback = noop;
     this.drawImageCallback = noop;
     this.saveLineObjectFromServerCallback = noop;
     this.clientPanCallback = function (arr) {
@@ -37,7 +36,6 @@ function SocketBroker(socket, client) {
             that.callBackQueue[that.nonce] = logger
         });
         socket.on(SocketBroker.DRAW_TEXT_FROM_SERVER, that.drawTextCallback);
-        //socket.on(SocketBroker.DRAW_LINE_FROM_SERVER, that.drawLineCallback);
         socket.on(SocketBroker.DRAW_IMAGE_FROM_SERVER, that.drawImageCallback);
         socket.on(SocketBroker.LINE_OBJECT_FROM_SERVER, that.saveLineObjectFromServerCallback);
         socket.on(SocketBroker.CLIENT_PAN, that.clientPanCallback);
@@ -54,9 +52,9 @@ function SocketBroker(socket, client) {
             that.callBackQueue[data.nonce] = callback;
             socket.json.emit(SocketBroker.DRAW_TEXT_FROM_CLIENT, data);
         };
-        this.clientDrawImageObject = function clientDrawImage(data) {
+        this.clientDrawImageObject = function clientDrawImage(data, callback) {
             data.nonce = that.nonce++;
-            that.callBackQueue[data.nonce]= function(res) {console.log("WOOWOWO", res)}
+            that.callBackQueue[data.nonce]= (callback || noop);
             socket.json.emit(SocketBroker.DRAW_IMAGE_FROM_CLIENT, data);
         };
 
@@ -71,7 +69,6 @@ function SocketBroker(socket, client) {
             socket.json.emit(SocketBroker.CLIENT_PAN, [x, y]);
         };
         this.clientTranslateSelected = function (data) {
-            console.log("client trying to send this", data)
             socket.json.emit(SocketBroker.TRANSLATE_SELECTED_CLIENT, data);
         };
         console.log("broker initialised")
@@ -80,8 +77,6 @@ function SocketBroker(socket, client) {
 
 SocketBroker.DRAW_TEXT_FROM_SERVER = "DRAW_TEXT_FROM_SERVER";
 SocketBroker.DRAW_TEXT_FROM_CLIENT = "DRAW_TEXT_FROM_CLIENT";
-//SocketBroker.DRAW_LINE_FROM_SERVER = "DRAW_LINE_FROM_SERVER";
-//SocketBroker.DRAW_LINE_FROM_CLIENT = "DRAW_LINE_FROM_CLIENT";
 SocketBroker.LINE_OBJECT_FROM_SERVER = "LINE_OBJECT_FROM_SERVER";
 SocketBroker.LINE_OBJECT_FROM_CLIENT = "LINE_OBJECT_FROM_CLIENT";
 SocketBroker.DRAW_IMAGE_FROM_SERVER = "DRAW_IMAGE_FROM_SERVER";

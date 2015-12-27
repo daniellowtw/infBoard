@@ -57,9 +57,9 @@ function Client(canvas, tempCanvas, readOnlyCanvas) {
         that.sBroker = new SocketBroker(that.socket, that);
         that.sBroker.saveLineObjectFromServerCallback = function (data) {
             var obj = LineObject.newFromData(data);
-            that.readOnlyObjectStore[obj.id] = obj;
+            that.objectStore[obj.id] = obj;
             that.scope.forceUpdate();
-            that.defaultViewForContext(that.readOnlyCtx, that.readOnlyObjectStore, -that.tx, -that.ty)
+            that.defaultViewForContext(that.ctx, that.objectStore, -that.tx, -that.ty)
         };
         that.myTextCallback = function (data, context, objectStore) {
             var obj = TextObject.newFromData(data);
@@ -68,10 +68,10 @@ function Client(canvas, tempCanvas, readOnlyCanvas) {
             that.defaultViewForContext(context, objectStore, -that.tx, -that.ty)
         };
         that.sBroker.drawTextCallback = function (data) {
-            that.myTextCallback(data, that.readOnlyCtx, that.readOnlyObjectStore)
+            that.myTextCallback(data, that.ctx, that.objectStore)
         };
         that.sBroker.drawImageCallback = function (data) {
-            that.myImageCallback(data, that.readOnlyCtx, that.readOnlyObjectStore)
+            that.myImageCallback(data, that.ctx, that.objectStore)
         };
         that.myImageCallback = function (data, context, objectStore) {
             var obj = ImageObject.newFromData(data);
@@ -88,9 +88,9 @@ function Client(canvas, tempCanvas, readOnlyCanvas) {
             that.defaultViewForContext(context, objectStore, -that.tx, -that.ty)
         };
         that.sBroker.clientTranslateSelectedCallback = function (data) {
-            that.myTranslateSelectedCallback(data, that.readOnlyCtx, that.readOnlyObjectStore)
+            that.myTranslateSelectedCallback(data, that.ctx, that.objectStore)
             for (var i = 0; i < data.selected.length; i++) {
-                that.readOnlyObjectStore[data.selected[i]].selected = false;
+                that.objectStore[data.selected[i]].selected = false;
             }
         };
         that.sBroker.init();
@@ -215,7 +215,6 @@ function Client(canvas, tempCanvas, readOnlyCanvas) {
                         that.sBroker.clientDrawTextObject(objectToSend, function (res) {
                             objectToSend.id = res;
                             that.objectStore[objectToSend.id] = objectToSend;
-                            //that.scope.forceUpdate();
                             that.myTextCallback(objectToSend, that.ctx, that.objectStore);
                         });
                     }
