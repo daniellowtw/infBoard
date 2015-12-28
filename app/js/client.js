@@ -87,6 +87,14 @@ function Client(canvas, tempCanvas, readOnlyCanvas) {
             that.scope.forceUpdate();
             that.defaultViewForContext(context, objectStore, -that.tx, -that.ty)
         };
+        that.myDeleteObjectCallback = function(objId) {
+            delete that.scope.objectStack[objId];
+            that.scope.forceUpdate()
+        };
+        that.sBroker.clientDeleteObjectCallback = function(data) {
+            that.myDeleteObjectCallback()
+        };
+
         that.sBroker.clientTranslateSelectedCallback = function (data) {
             that.myTranslateSelectedCallback(data, that.ctx, that.objectStore);
             for (var i = 0; i < data.selected.length; i++) {
@@ -243,6 +251,17 @@ Client.modes = {
 };
 Client.prototype.getIdForObject = function () {
     return ++this.objectId;
+};
+
+Client.prototype.deleteObject = function deleteObject(obj) {
+    var that = this;
+    this.sBroker.clientDeleteObject(obj.id, function(err){
+        if (err) {
+            console.log("error deleting object", obj, err);
+            return
+        }
+        that.myDeleteObjectCallback(obj.id, that.ctx, that.objectStore);
+    });
 };
 
 Client.prototype.addImageObject = function addImageObject(results) {

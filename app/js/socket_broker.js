@@ -23,6 +23,7 @@ function SocketBroker(socket, client) {
         client.defaultView(-arr[0], -arr[1]);
     };
     this.clientTranslateSelectedCallback = noop;
+    this.clientDeleteObjectCallback = noop;
     this.callBackQueue = {}; // {id:function(res:[nil/obj])}
 
     this.init = function () {
@@ -40,6 +41,7 @@ function SocketBroker(socket, client) {
         socket.on(SocketBroker.LINE_OBJECT_FROM_SERVER, that.saveLineObjectFromServerCallback);
         socket.on(SocketBroker.CLIENT_PAN, that.clientPanCallback);
         socket.on(SocketBroker.TRANSLATE_SELECTED_SERVER, that.clientTranslateSelectedCallback);
+        socket.on(SocketBroker.DELETE_SELECTED_SERVER, that.clientDeleteObjectCallback);
         socket.on(SocketBroker.MSG_FROM_SERVER, function (data) {
             console.log("MESSAGE FROM SERVER", data);
         });
@@ -73,7 +75,19 @@ function SocketBroker(socket, client) {
         };
         this.clientSaveMovedObject = function (data) {
             socket.json.emit(SocketBroker.SAVE_MOVED_OBJECT, data)
-        }
+        };
+
+        // TODO(Bulk delete like bulk translate?)
+        this.clientDeleteObject = function (objectIdToDelete, callback) {
+            var nonce = that.nonce++;
+            message = {
+                nonce: nonce,
+                objId: objectIdToDelete
+            };
+            that.callBackQueue[nonce] = callback;
+            socket.json.emit(SocketBroker.DELETE_SELECTED_CLIENT, message)
+        };
+
         console.log("broker initialised")
     }
 }
@@ -87,6 +101,8 @@ SocketBroker.DRAW_IMAGE_FROM_CLIENT = "DRAW_IMAGE_FROM_CLIENT";
 SocketBroker.CLIENT_PAN = "CLIENT_PAN";
 SocketBroker.TRANSLATE_SELECTED_CLIENT = "TRANSLATE_SELECTED_CLIENT";
 SocketBroker.TRANSLATE_SELECTED_SERVER = "TRANSLATE_SELECTED_SERVER";
+SocketBroker.DELETE_SELECTED_CLIENT = "DELETE_SELECTED_CLIENT";
+SocketBroker.DELETE_SELECTED_SERVER = "DELETE_SELECTED_SERVER";
 SocketBroker.MSG_FROM_SERVER = "MSG_FROM_SERVER";
 SocketBroker.MSG_FROM_CLIENT = "MSG_FROM_CLIENT";
 SocketBroker.SAVE_MOVED_OBJECT = "SAVE_MOVED_OBJECT";

@@ -28,9 +28,8 @@ infBoard.controller('MainCtrl', ['$scope', "CanvasClient", function ($scope, Can
         .mouseup(function () {
             $scope.$apply($scope.objectStack = CanvasClient.objectStore)
         });
-    $scope.removeObj = function removeObj(obj) {
-        delete $scope.objectStack[obj.id];
-        CanvasClient.update()
+    $scope.removeObj = function removeObj(obj){
+        CanvasClient.deleteObject(obj);
     };
     $scope.toggleSelectObj = function toggleSelectObj(obj) {
         $scope.changeMode(client.modes.MOVE);
