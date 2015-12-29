@@ -29,8 +29,8 @@ function SocketBroker(socket, client) {
     this.init = function () {
         // Receiving from server
         socket.on("SYNACK", function (data) {
-            // data is of the form {nonce:int, res:[nil/object]}
-            that.callBackQueue[data.nonce](data.res)
+            // data is of the form {nonce:int, res:[nil/object], err:[error/nil]}
+            that.callBackQueue[data.nonce](data.res, data.err)
         });
         socket.on("INIT", function(data) {
             that.nonce = data.nonce;
@@ -85,6 +85,7 @@ function SocketBroker(socket, client) {
                 objId: objectIdToDelete
             };
             that.callBackQueue[nonce] = callback;
+            console.log("client sending", message)
             socket.json.emit(SocketBroker.DELETE_SELECTED_CLIENT, message)
         };
 

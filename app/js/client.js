@@ -89,10 +89,11 @@ function Client(canvas, tempCanvas, readOnlyCanvas) {
         };
         that.myDeleteObjectCallback = function(objId) {
             delete that.scope.objectStack[objId];
-            that.scope.forceUpdate()
+            that.scope.forceUpdate(); // update scope
+            that.update(); // redraw canvas
         };
-        that.sBroker.clientDeleteObjectCallback = function(data) {
-            that.myDeleteObjectCallback()
+        that.sBroker.clientDeleteObjectCallback = function(objId) {
+            that.myDeleteObjectCallback(objId)
         };
 
         that.sBroker.clientTranslateSelectedCallback = function (data) {
@@ -255,7 +256,7 @@ Client.prototype.getIdForObject = function () {
 
 Client.prototype.deleteObject = function deleteObject(obj) {
     var that = this;
-    this.sBroker.clientDeleteObject(obj.id, function(err){
+    this.sBroker.clientDeleteObject(obj.id, function(_, err){
         if (err) {
             console.log("error deleting object", obj, err);
             return
