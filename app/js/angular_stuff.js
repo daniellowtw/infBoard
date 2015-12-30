@@ -1,4 +1,4 @@
-var infBoard = angular.module("infBoard", ["ui.bootstrap", "colorpicker.module"]);
+var infBoard = angular.module("infBoard", ["ui.bootstrap", "colorpicker.module", "ngRoute"]);
 var helper = require('./helper.js');
 var client = require("./client.js");
 
@@ -28,7 +28,7 @@ infBoard.controller('MainCtrl', ['$scope', "CanvasClient", function ($scope, Can
         .mouseup(function () {
             $scope.$apply($scope.objectStack = CanvasClient.objectStore)
         });
-    $scope.removeObj = function removeObj(obj){
+    $scope.removeObj = function removeObj(obj) {
         CanvasClient.deleteObject(obj);
     };
     $scope.toggleSelectObj = function toggleSelectObj(obj) {
@@ -99,7 +99,19 @@ infBoard.provider("CanvasClient", function () {
 });
 
 // Configure our client object
-infBoard.config(function (CanvasClientProvider) {
+infBoard.config(function (CanvasClientProvider, $routeProvider) {
+    $routeProvider.when('/:roomId', {
+        templateUrl: 'templates/room.html',
+        controller: 'MainCtrl'
+    })
+        .when('/', {
+            templateUrl: 'templates/lobby.html',
+            controller: 'MainCtrl'
+        })
+        .otherwise({
+            redirectTo: '/'
+        });
+
     $(document).ready(function () {
         $("#infBoard").each(function () {
             var canvasEle = helper.createCanvas(9, 'localCanvas');

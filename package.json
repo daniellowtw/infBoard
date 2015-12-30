@@ -14,6 +14,7 @@
   "devDependencies": {
     "angular": "^1.4.7",
     "angular-bootstrap-colorpicker": "^3.0.19",
+    "angular-route": "^1.4.8",
     "angular-ui-bootstrap": "^0.14.3",
     "bootstrap": "^3.3.5",
     "bootstrap-slider": "^5.2.5",

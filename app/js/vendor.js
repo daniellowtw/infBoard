@@ -2,6 +2,7 @@ module.exports = function () {
   require("bootstrap-webpack");
   require('jquery');
   require('angular');
+  require('angular-route');
   require('angular-ui-bootstrap');
 
   // For angular bootstrap colour picker
