@@ -8,9 +8,13 @@ var redisSub = require("redis-connection")("subscriber");
 var dbClient = require("./lib/db_client");
 var serverSocketBroker = require("./lib/server_socket_broker")
 var port = process.env.PORT || 8080;
+var router = express.Router();
+var api = require("./lib/api");
 
-//Create a static file server
-app.use(express.static(__dirname + '/public'));
+router.use("/api", api);
+router.use(express.static(__dirname + '/public'));
+app.use(router);
+
 http.listen(port);
 console.log('Express server started on port %s', port);
 
