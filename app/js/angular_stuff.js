@@ -2,8 +2,8 @@ var infBoard = angular.module("infBoard", ["ui.bootstrap", "colorpicker.module",
 var helper = require('./helper.js');
 var client = require("./client.js");
 
-infBoard.controller('MainCtrl', ['$scope', "$document", function ($scope, $document) {
-
+infBoard.controller('MainCtrl', ['$scope', "$document", "$routeParams", function ($scope, $document, $routeParams) {
+    var roomId = $routeParams.roomId;
     var CanvasClient;
     $document.ready(function () {
         $("#infBoard").each(function () {
@@ -12,7 +12,7 @@ infBoard.controller('MainCtrl', ['$scope', "$document", function ($scope, $docum
             var readOnlyCanvasEle = helper.createCanvas(7, 'readOnlyCanvas');
             $(this).append(canvasEle).append(tempCanvasEle).append(readOnlyCanvasEle);
             CanvasClient = new client(canvasEle[0], tempCanvasEle[0], readOnlyCanvasEle[0]);
-            CanvasClient.init();
+            CanvasClient.init(roomId);
 
             // Add hock for image readerclipboard.js
             $("html").pasteImageReader(function (results) {
@@ -109,6 +109,39 @@ infBoard.controller('MainCtrl', ['$scope', "$document", function ($scope, $docum
 
 }]);
 
+infBoard.controller("LobbyCtrl", function ($scope, $location) {
+    $scope.newRoom = false;
+    $scope.joinRoom = false;
+    $scope.navigate = function (to) {
+        if (to === "newRoom") {
+            $scope.newRoom = true;
+        } else if (to === "joinRoom") {
+            $scope.joinRoom = true;
+        } else {
+            $scope.newRoom = false;
+            $scope.joinRoom = false;
+        }
+    };
+
+    $scope.roomId = "";
+
+    $scope.createNewRoomSubmit = function () {
+        if ($scope.roomId === "") {
+            console.log("need a room id")
+            return
+        } else {
+            client.createNewRoom($scope.roomId, function() {
+                $location.path($scope.roomId)
+            });
+        }
+    };
+
+    $scope.joinRoomSubmit = function() {
+        $location.path($scope.roomId)
+    }
+
+});
+
 // Configure our client object
 infBoard.config(function ($routeProvider) {
     $routeProvider.when('/:roomId', {
@@ -117,7 +150,7 @@ infBoard.config(function ($routeProvider) {
     })
         .when('/', {
             templateUrl: 'templates/lobby.html',
-            controller: 'MainCtrl'
+            controller: 'LobbyCtrl'
         })
         .otherwise({
             redirectTo: '/'

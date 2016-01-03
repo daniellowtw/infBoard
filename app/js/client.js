@@ -7,6 +7,7 @@ var ImageObject = require("./inf_board/image_object");
 var socketClient = require("socket.io-client");
 var helper = require('./helper');
 var SocketBroker = require("./socket_broker");
+var request = require('superagent');
 
 
 function Client(canvas, tempCanvas, readOnlyCanvas) {
@@ -50,11 +51,11 @@ function Client(canvas, tempCanvas, readOnlyCanvas) {
         this.selectedObjectsID.splice(this.selectedObjectsID.indexOf(id), 1);
     };
 
-    this.init = function init(options) {
+    this.init = function init(roomId, options) {
         if (options != undefined && options.hasOwnProperty('objectStore')) {
             that.objectStore = options.objectStore;
         }
-        that.sBroker = new SocketBroker(that.socket, that);
+        that.sBroker = new SocketBroker(that.socket, roomId);
         that.sBroker.saveLineObjectFromServerCallback = function (data) {
             var obj = LineObject.newFromData(data);
             that.objectStore[obj.id] = obj;
@@ -87,12 +88,12 @@ function Client(canvas, tempCanvas, readOnlyCanvas) {
             that.scope.forceUpdate();
             that.defaultViewForContext(context, objectStore, -that.tx, -that.ty)
         };
-        that.myDeleteObjectCallback = function(objId) {
+        that.myDeleteObjectCallback = function (objId) {
             delete that.scope.objectStack[objId];
             that.scope.forceUpdate(); // update scope
             that.update(); // redraw canvas
         };
-        that.sBroker.clientDeleteObjectCallback = function(objId) {
+        that.sBroker.clientDeleteObjectCallback = function (objId) {
             that.myDeleteObjectCallback(objId)
         };
 
@@ -101,6 +102,13 @@ function Client(canvas, tempCanvas, readOnlyCanvas) {
             for (var i = 0; i < data.selected.length; i++) {
                 that.objectStore[data.selected[i]].selected = false;
             }
+        };
+
+        that.sBroker.clientPanCallback = function (arr) {
+            // tx and ty given are the latest ones. So just update it
+            that.tx = arr[0];
+            that.ty = arr[1];
+            that.defaultView(-arr[0], -arr[1]);
         };
         that.sBroker.init();
 
@@ -216,7 +224,11 @@ function Client(canvas, tempCanvas, readOnlyCanvas) {
                     var data = [];
                     for (var i = 0; i < that.selectedObjectsID.length; i++) {
                         var tempObj = that.selectedObjectsID[i];
-                        data.push({id:tempObj, offsetX: that.objectStore[tempObj].offsetX, offsetY: that.objectStore[tempObj].offsetY})
+                        data.push({
+                            id: tempObj,
+                            offsetX: that.objectStore[tempObj].offsetX,
+                            offsetY: that.objectStore[tempObj].offsetY
+                        })
                     }
                     that.sBroker.clientSaveMovedObject(data);
                     break;
@@ -256,7 +268,7 @@ Client.prototype.getIdForObject = function () {
 
 Client.prototype.deleteObject = function deleteObject(obj) {
     var that = this;
-    this.sBroker.clientDeleteObject(obj.id, function(_, err){
+    this.sBroker.clientDeleteObject(obj.id, function (_, err) {
         if (err) {
             console.log("error deleting object", obj, err);
             return
@@ -337,6 +349,19 @@ Client.prototype.addTextObject = function (t) {
     // Render the text as we type.
     this.defaultViewForContext(this.tempCtx, {}, -this.tx, -this.ty);
     this.currObj.render(this.tempCtx);
+};
+
+Client.createNewRoom = function (roomId, redirect) {
+    request.post('/api/rooms', {
+        roomId: roomId
+    }, function (err, res, body) {
+        if (err) {
+            console.log("An error has occurred")
+            return
+        } else {
+            redirect()
+        }
+    })
 };
 
 module.exports = Client;

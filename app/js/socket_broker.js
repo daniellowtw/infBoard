@@ -3,7 +3,7 @@ var LineObject = require('./inf_board/line_object');
 /*
  Wrapper for socket stuff. Handles client id, etc
  */
-function SocketBroker(socket, client) {
+function SocketBroker(socket, roomId) {
     var that = this,
         noop = function noop() {
         },
@@ -11,17 +11,12 @@ function SocketBroker(socket, client) {
             console.log("Socketbroker:", data)
         };
     this.nonce = 0; // messageId between server and client
-    this.id = null;
+    this.id = roomId;
     // These will be set by client where necessary
     this.drawTextCallback = noop;
     this.drawImageCallback = noop;
     this.saveLineObjectFromServerCallback = noop;
-    this.clientPanCallback = function (arr) {
-        // tx and ty given are the latest ones. So just update it
-        client.tx = arr[0];
-        client.ty = arr[1];
-        client.defaultView(-arr[0], -arr[1]);
-    };
+    this.clientPanCallback = noop;
     this.clientTranslateSelectedCallback = noop;
     this.clientDeleteObjectCallback = noop;
     this.callBackQueue = {}; // {id:function(res:[nil/obj])}
@@ -34,7 +29,8 @@ function SocketBroker(socket, client) {
         });
         socket.on("INIT", function(data) {
             that.nonce = data.nonce;
-            that.callBackQueue[that.nonce] = logger
+            that.callBackQueue[that.nonce] = logger;
+            console.log("broker initialised")
         });
         socket.on(SocketBroker.DRAW_TEXT_FROM_SERVER, that.drawTextCallback);
         socket.on(SocketBroker.DRAW_IMAGE_FROM_SERVER, that.drawImageCallback);
@@ -80,16 +76,15 @@ function SocketBroker(socket, client) {
         // TODO(Bulk delete like bulk translate?)
         this.clientDeleteObject = function (objectIdToDelete, callback) {
             var nonce = that.nonce++;
-            message = {
+            var message = {
                 nonce: nonce,
                 objId: objectIdToDelete
             };
             that.callBackQueue[nonce] = callback;
-            console.log("client sending", message)
             socket.json.emit(SocketBroker.DELETE_SELECTED_CLIENT, message)
         };
 
-        console.log("broker initialised")
+        socket.json.emit("INIT", {roomId: roomId});
     }
 }
 

@@ -2,21 +2,20 @@
   <h2>Welcome to infBoard</h2>
   <hr>
   <div ng-hide="joinRoom || newRoom">
-    <div class="btn btn-default">
+    <div class="btn btn-default" ng-click="navigate('joinRoom')">
       Join an existing room
     </div>
-    <div class="btn btn-default">
+    <div class="btn btn-default" ng-click="navigate('newRoom')">
       Create a new room
     </div>
   </div>
   <div ng-show="newRoom">
-    <form>
+    <form ng-submit="createNewRoomSubmit()">
       <div>
-        <input autocorrect="off" autocapitalize="off" type="text" id="access-code" name="accessCode" placeholder="Enter an access code">
-        <input type="text" id="user-name" name="userName" placeholder="Enter your name">
+        <input autocorrect="off" autocapitalize="off" type="text" ng-model="roomId" name="accessCode" placeholder="Enter a roomId">
         <div class="button-container">
-          <input type="submit" value="Join">
-          <div class="btn btn-default">
+          <input type="submit" class="btn btn-default" value="Create">
+          <div class="btn btn-default" ng-click="navigate()">
             Back
           </div>
         </div>
@@ -24,13 +23,12 @@
     </form>
   </div>
   <div ng-show="joinRoom">
-    <form>
+    <form ng-submit="joinRoomSubmit()">
       <div>
-        <input autocorrect="off" autocapitalize="off" type="text" id="access-code" name="accessCode" placeholder="Enter an access code">
-        <input type="text" id="user-name" name="userName" placeholder="Enter your name">
+        <input autocorrect="off" autocapitalize="off" type="text" ng-model="roomId" name="accessCode" placeholder="Enter a roomId">
         <div class="button-container">
-          <input type="submit" value="Join">
-          <div class="btn btn-default">
+          <input type="submit" class="btn btn-default" value="Join">
+          <div class="btn btn-default" ng-click="navigate()">
             Back
           </div>
         </div>
