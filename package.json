@@ -28,6 +28,7 @@
     "jquery": "^2.1.4",
     "less": "^2.5.3",
     "less-loader": "^2.2.1",
+    "mousetrap": "^1.5.3",
     "raw-loader": "^0.5.1",
     "redis-connection": "^4.0.1",
     "request": "^2.67.0",

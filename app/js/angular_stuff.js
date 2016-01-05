@@ -1,6 +1,7 @@
 var infBoard = angular.module("infBoard", ["ui.bootstrap", "colorpicker.module", "ngRoute"]);
 var helper = require('./helper.js');
 var client = require("./client.js");
+require("mousetrap"); // This will expose the Mousetrap object
 
 infBoard.controller('MainCtrl', ['$scope', "$document", "$routeParams", function ($scope, $document, $routeParams) {
     var roomId = $routeParams.roomId;
@@ -104,7 +105,21 @@ infBoard.controller('MainCtrl', ['$scope', "$document", "$routeParams", function
 
         $scope.changeColour = function changeColour() {
             CanvasClient.updateStyle($scope.strokeStyle)
-        }
+        };
+
+        var genFunc = function (mode) {
+            return function () {
+                console.log("Changing mode to ", mode);
+                $scope.changeMode(mode);
+                $scope.$apply();
+                return false;
+            }
+        };
+
+        Mousetrap.bind(["command+1", "ctrl+1", "1"], genFunc(client.modes.DRAW));
+        Mousetrap.bind(["command+2", "ctrl+2", "2"], genFunc(client.modes.PAN));
+        Mousetrap.bind(["command+3", "ctrl+3", "3"], genFunc(client.modes.MOVE));
+        Mousetrap.bind(["command+4", "ctrl+4", "4"], genFunc(client.modes.TEXT));
     });
 
 }]);
