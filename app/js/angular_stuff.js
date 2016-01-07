@@ -27,6 +27,10 @@ infBoard.controller('MainCtrl', ['$scope', "$document", "$routeParams", function
             console.log("magic-recieved", data)
         });
 
+        $scope.toggleCanvasSize = function() {
+            CanvasClient.toggleCanvasResize();
+        };
+
         $scope.magic = function () {
             CanvasClient.socket.emit("magic", "blah");
             console.log(CanvasClient.objectStore);
@@ -142,7 +146,7 @@ infBoard.controller("LobbyCtrl", function ($scope, $location) {
 
     $scope.createNewRoomSubmit = function () {
         if ($scope.roomId === "") {
-            console.log("need a room id")
+            console.log("need a room id");
             return
         } else {
             client.createNewRoom($scope.roomId, function() {

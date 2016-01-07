@@ -42,6 +42,11 @@ function Client(canvas, tempCanvas, readOnlyCanvas) {
     this.scope = null; // Register the scope of the controller so we can control the view.
     this.socket = socketClient();
     this.selectedObjectsID = [];
+    this.currentCanvasSize = true;
+
+    this.toggleCanvasResize(true);
+    //helper.resizeCanvasBasedOnWindow(canvas, tempCanvas, readOnlyCanvas);
+
 
     this.addSelected = function (id) {
         this.selectedObjectsID.push(id);
@@ -362,6 +367,22 @@ Client.createNewRoom = function (roomId, redirect) {
             redirect()
         }
     })
+};
+
+// Toggle between the size of the canvas or use the given size. true = small, false = large
+Client.prototype.toggleCanvasResize = function (x) {
+    var that = this;
+    this.currentCanvasSize = x || !this.currentCanvasSize;
+    if (this.currentCanvasSize) {
+        $(window).unbind("resize");
+        helper.resizeCanvasBasedOnConfig(that.canvas, that.tempCanvas, that.readOnlyCanvas);
+    } else {
+        $(window).bind("resize", function () {
+            helper.resizeCanvasBasedOnWindow(that.canvas, that.tempCanvas, that.readOnlyCanvas);
+        });
+        helper.resizeCanvasBasedOnWindow(that.canvas, that.tempCanvas, that.readOnlyCanvas);
+    }
+    that.update();
 };
 
 module.exports = Client;

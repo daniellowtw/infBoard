@@ -17,16 +17,20 @@
                      ng-click="changeMode(modes.MOVE)"><i class='glyphicon glyphicon-hand-up'></i>
                 </div>
                 <div id="text" type="button" class="btn btn-default" ng-class="{active: mode == modes.TEXT}"
-                     ng-click="changeMode(modes.TEXT)"><i class='glyphicon glyphicon-text-width'></i>
+                     ng-click="changeMode(modes.TEXT)">
+                    <i class='glyphicon glyphicon-text-width'></i>
                 </div>
                 <input type="text" id="MyHiddenText"/>
             </div>
-            <div id="clear" type="button" class="btn btn-default"><i class="glyphicon glyphicon-trash"
-                                                                     ng-click="changeMode(modes.CLEAR)"></i>
+            <div id="clear" type="button" class="btn btn-default" ng-click="changeMode(modes.CLEAR)">
+                <i class="glyphicon glyphicon-trash"></i>
+            </div>
+            <div id="resize" type="button" class="btn btn-default" ng-click="toggleCanvasSize()">
+                <i class="glyphicon glyphicon-resize-full"></i>
             </div>
         </div>
         <div class="row">
-            <div id="infBoard" class="container"></div>
+            <div id="infBoard" class="canvas-container"></div>
         </div>
     </div>
     <div class="col-sm-2">
@@ -37,14 +41,17 @@
             </div>
             <div class="row" ng-repeat="obj in objectStack" id="{{obj.id}}">
                 <i class="glyphicon glyphicon-remove" ng-click="removeObj(obj)"></i>
-                <i class="glyphicon" ng-class="{'glyphicon-unchecked': !obj.selected, 'glyphicon-check':obj.selected}" ng-click="toggleSelectObj(obj)"></i>
+                <i class="glyphicon" ng-class="{'glyphicon-unchecked': !obj.selected, 'glyphicon-check':obj.selected}"
+                   ng-click="toggleSelectObj(obj)"></i>
                 <!--//TODO: make it an image-->
                 {{obj.id}} {{obj.text}}
             </div>
             <h4>Read only</h4>
+
             <div class="row" ng-repeat="obj in readOnlyStack" id="{{obj.id}}">
                 <i class="glyphicon glyphicon-remove" ng-click="removeObj(obj)"></i>
-                <i class="glyphicon" ng-class="{'glyphicon-unchecked': !obj.selected, 'glyphicon-check':obj.selected}" ng-click="toggleSelectObj(obj)"></i>
+                <i class="glyphicon" ng-class="{'glyphicon-unchecked': !obj.selected, 'glyphicon-check':obj.selected}"
+                   ng-click="toggleSelectObj(obj)"></i>
                 <!--//TODO: make it an image-->
                 {{obj.id}} {{obj.text}}
             </div>

@@ -4,8 +4,7 @@ function Helper(config) {
     // Returns a jquery canvas object
     this.createCanvas = function createCanvas(z, name) {
         if (z === undefined) z = 0;
-        return $('<canvas class="myCanvas" width="' + config.canvasWidth +
-            '" height="' + config.canvasHeight + '" id="' + name + '">' +
+        return $('<canvas class="myCanvas"' + ' id="' + name + '">' +
             'Your browser does not support canvas :(' +
             '</canvas>').css("z-index", z);
     };
@@ -37,7 +36,27 @@ Helper.prototype.restoreContextStyle = function (ctx) {
 };
 
 Helper.prototype.cleanContext = function(ctx) {
-    ctx.clearRect(0, 0, config.canvasWidth, config.canvasHeight);
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+};
+
+// Assume spread argument of canvases
+Helper.prototype.resizeCanvasBasedOnWindow = function() {
+    $(".myCanvas").css("width", "100vw").css("height", "100vh");
+    for (var i = 0; i<arguments.length; i++){
+        var canvas = arguments[i];
+        canvas.height = canvas.clientHeight;
+        canvas.width = canvas.clientWidth;
+    }
+};
+
+Helper.prototype.resizeCanvasBasedOnConfig = function() {
+    $(".myCanvas").css("width", config.canvasWidth).css("height", config.canvasHeight);
+    for (var i = 0; i<arguments.length; i++){
+        var canvas = arguments[i];
+        canvas.height = config.canvasHeight;
+        canvas.width = config.canvasWidth;
+    }
+
 };
 
 module.exports = new Helper(config);
