@@ -337,11 +337,15 @@ Client.prototype.translateSelected = function translateSelected(objectStore, x, 
     this.update();
 };
 
-Client.prototype.unselectAll = function unselectAll() {
+Client.prototype.setAllObjectSelectedTo = function setAllObjectSelectedTo(x) {
+    var that = this;
+    var x = x || false;
     Object.keys(this.objectStore).forEach(function (key) {
-        this[key].toggleSelected(false)
+        this[key].toggleSelected(x)
     }, this.objectStore);
-    this.selectedObjectsID = [];
+    if (!x) {
+        that.selectedObjectsID = [];
+    }
     this.update();
 };
 

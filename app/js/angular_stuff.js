@@ -6,6 +6,13 @@ require("mousetrap"); // This will expose the Mousetrap object
 infBoard.controller('MainCtrl', ['$scope', "$document", "$routeParams", function ($scope, $document, $routeParams) {
     var roomId = $routeParams.roomId;
     var CanvasClient;
+
+    function unselectAllObj() {
+        CanvasClient.setAllObjectSelectedTo(false);
+        $scope.allObjSelected = false;
+    }
+
+    $scope.allObjSelected = false;
     $document.ready(function () {
         $("#infBoard").each(function () {
             var canvasEle = helper.createCanvas(9, 'localCanvas');
@@ -23,17 +30,8 @@ infBoard.controller('MainCtrl', ['$scope', "$document", "$routeParams", function
 
         CanvasClient.scope = $scope;
 
-        CanvasClient.socket.on("magic-received", function (data) {
-            console.log("magic-recieved", data)
-        });
-
-        $scope.toggleCanvasSize = function() {
+        $scope.toggleCanvasSize = function () {
             CanvasClient.toggleCanvasResize();
-        };
-
-        $scope.magic = function () {
-            CanvasClient.socket.emit("magic", "blah");
-            console.log(CanvasClient.objectStore);
         };
 
         $scope.forceUpdate = function () {
@@ -50,10 +48,20 @@ infBoard.controller('MainCtrl', ['$scope', "$document", "$routeParams", function
             .mouseup(function () {
                 $scope.$apply($scope.objectStack = CanvasClient.objectStore)
             });
+
+        $scope.removeSelectedObj = function removeSelectedObj() {
+            for (key in $scope.objectStack) {
+                $scope.removeObj($scope.objectStack[key]);
+            }
+            $scope.allObjSelected = false;
+        };
+
         $scope.removeObj = function removeObj(obj) {
             CanvasClient.deleteObject(obj);
         };
+
         $scope.toggleSelectObj = function toggleSelectObj(obj) {
+            $scope.allObjSelected = false;
             $scope.changeMode(client.modes.MOVE);
             obj.toggleSelected();
             if (obj.selected) {
@@ -63,11 +71,15 @@ infBoard.controller('MainCtrl', ['$scope', "$document", "$routeParams", function
             }
             CanvasClient.update()
         };
-        $scope.unselectAll = function () {
-            CanvasClient.unselectAll()
+
+        $scope.toggleSelectAllObj = function () {
+            $scope.allObjSelected = !$scope.allObjSelected;
+            CanvasClient.setAllObjectSelectedTo($scope.allObjSelected);
+            $scope.changeMode(client.modes.MOVE);
         };
+
         $scope.modes = client.modes;
-        $scope.strokeStyle = "";
+        $scope.strokeStyle = '#000000';
         $scope.strokeWidth = 1;
         $scope.mode = $scope.modes.NONE;
 
@@ -76,18 +88,18 @@ infBoard.controller('MainCtrl', ['$scope', "$document", "$routeParams", function
                 case client.modes.NONE:
                     break;
                 case client.modes.DRAW:
-                    $scope.unselectAll();
+                    unselectAllObj();
                     break;
                 case client.modes.MOVE:
                     break;
                 case client.modes.PAN:
-                    $scope.unselectAll();
+                    unselectAllObj();
                     break;
                 case client.modes.CLEAR:
                     CanvasClient.clearBoard();
                     break;
                 case client.modes.TEXT:
-                    CanvasClient.unselectAll();
+                    unselectAllObj();
                     var ele = $('#MyHiddenText');
                     ele.val("");
                     CanvasClient.addTextObject(ele.val()); // creates a new text object
@@ -149,13 +161,13 @@ infBoard.controller("LobbyCtrl", function ($scope, $location) {
             console.log("need a room id");
             return
         } else {
-            client.createNewRoom($scope.roomId, function() {
+            client.createNewRoom($scope.roomId, function () {
                 $location.path($scope.roomId)
             });
         }
     };
 
-    $scope.joinRoomSubmit = function() {
+    $scope.joinRoomSubmit = function () {
         $location.path($scope.roomId)
     }
 
