@@ -12,7 +12,7 @@ var request = require('superagent');
 
 function Client(canvas, tempCanvas, readOnlyCanvas) {
     var that = this,
-        borderWidth = 10,
+        borderWidth = 1,
         isMouseDown = false,
         drawingData;
     this.isMouseInCanvas = false;
