@@ -33,5 +33,16 @@ Directory structure:
 ### TODO
 
 * Implement teleporting so we can have multiple topics on the same board
-* Persistent database
-* Create rooms that host their own infBoard
+* Improve UI!
+* Add panning when viewed from mobile
+* Add html link object
+* Right click menu and select object based on what's there
+* Remove text box for text input
+* Implement chat
+* Implement firefox pasting of image
+
+
+### Known bugs
+* Checking only a few objects and pressing delete might delete other objects
+* Borders are not drawn for some objects when selected
+*
